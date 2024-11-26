@@ -12,10 +12,14 @@ namespace Solar_system_Nudel
             // see https://aka.ms/applicationconfiguration.
             // ApplicationConfiguration.Initialize();
             //Application.Run(new Form1());
-            using (var game = new Classes.SolarSystemGame())
-            {
-                game.Run(); // Run the game window
-            }
+            //using (var game = new Classes.SolarSystemGame())
+          //  {
+           //     game.Run(); // Run the game window
+          //  }
+
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new Form1());
         }
     }
 }
