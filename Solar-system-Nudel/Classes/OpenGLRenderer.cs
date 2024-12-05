@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualBasic;
+using Solar_system_Nudel.Classes.OpenGLFolder;
 using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -10,41 +11,18 @@ namespace Solar_system_Nudel.Classes
         int Width = 800;
         int Height = 600;
 
-        private IntPtr _deviceContext; // Overall area to draw
-        private IntPtr _renderingContext; // Instance of GL
-        private IntPtr _windowHandle; // The window pointer
+        private nint _deviceContext; // Overall area to draw
+        private nint _renderingContext; // Instance of GL
+        private nint _windowHandle; // The window pointer
 
-        private bool SetOpenGLPixelFormat(IntPtr deviceContext)
-        {
-            PIXELFORMATDESCRIPTOR pfd = new PIXELFORMATDESCRIPTOR();
-            pfd.nSize = (ushort)Marshal.SizeOf(pfd);
-            pfd.nVersion = 1;
-            pfd.dwFlags = OpenGL.PFD_SUPPORT_OPENGL | OpenGL.PFD_DOUBLEBUFFER | OpenGL.PFD_DRAW_TO_WINDOW;
-            pfd.iPixelType = 0; // PFD_TYPE_RGBA
-            pfd.cColorBits = 32;
-            pfd.cDepthBits = 24;
-            pfd.cStencilBits = 8;
-            pfd.iLayerType = 0; // PFD_MAIN_PLANE
-            int pixelFormatIndex = OpenGL.ChoosePixelFormat(deviceContext, ref pfd);
-            if (pixelFormatIndex == 0)
-            {
-                MessageBox.Show("Failed to choose a pixel format.");
-                return false;
-            }
+       
 
-            if (!OpenGL.SetPixelFormat(deviceContext, pixelFormatIndex, ref pfd))
-            {
-                MessageBox.Show("Failed to set the pixel format.");
-                return false;
-            }
-
-            return true;
-        }
-
-        public OpenGLRenderer(IntPtr windowHandle)
+        public OpenGLRenderer(nint windowHandle)
         {
             _windowHandle = windowHandle;
             Console.WriteLine($"Window Handle: {_windowHandle}");
+            InitializeOpenGL();
+            InitRender();
         }
 
         public bool InitializeOpenGL()
@@ -52,20 +30,42 @@ namespace Solar_system_Nudel.Classes
             Console.WriteLine($"Initializing OpenGL with Window Handle: {_windowHandle}");
 
             _deviceContext = OpenGL.GetDC(_windowHandle);
-            if (_deviceContext == IntPtr.Zero)
+
+
+            OpenGL.SwapBuffers(_windowHandle);// not sure it is necessery 
+
+
+            WGL.PIXELFORMATDESCRIPTOR Pixel = new WGL.PIXELFORMATDESCRIPTOR();
+            WGL.ZeroPixelDescriptor( ref Pixel );
+            Pixel.nVersion = 1;
+            Pixel.dwFlags = (WGL.PFD_DRAW_TO_WINDOW | WGL.PFD_SUPPORT_OPENGL | WGL.PFD_DOUBLEBUFFER);
+            Pixel.iPixelType = (byte)(WGL.PFD_TYPE_RGBA);
+            Pixel.cColorBits = 32;
+            Pixel.cDepthBits = 32;
+            Pixel.iLayerType = (byte)(WGL.PFD_MAIN_PLANE);
+            Pixel.cStencilBits = 32;
+
+            int PixelSucsedded = 0;
+            PixelSucsedded = OpenGL.ChoosePixelFormat(_deviceContext, ref Pixel);
+            if(PixelSucsedded==0)
+            {
+                MessageBox.Show("unable to retrive pixel format");
+                return false;
+            }
+
+            if (_deviceContext == nint.Zero)
             {
                 MessageBox.Show("Failed to get device context");
                 return false;
             }
-
-            if (!SetOpenGLPixelFormat(_deviceContext))
+            if(WGL.SetPixelFormat(_deviceContext,PixelSucsedded,ref Pixel)==0 )
             {
-                MessageBox.Show("Failed to set the pixel format");
-                return false;
+                MessageBox.Show(" failed to set pixel format");
             }
+            
 
             _renderingContext = OpenGL.wglCreateContext(_deviceContext);
-            if (_renderingContext == IntPtr.Zero)
+            if (_renderingContext == nint.Zero)
             {
                 MessageBox.Show("Failed to create OpenGL rendering context");
                 return false;
@@ -82,21 +82,20 @@ namespace Solar_system_Nudel.Classes
 
         public void InitRender()
         {
-            OpenGL.glClearColor(0.2f, 0.2f, 0.2f, 1.0f); // Background color
-            OpenGL.glDisable(OpenGL.GL_DEPTH_TEST); // Disable depth testing for 2D
-            OpenGL.glViewport(0, 0, Width, Height);
+            if (_deviceContext == nint.Zero || _renderingContext == nint.Zero)
+                return;
+        
 
-            OpenGL.glMatrixMode(OpenGL.GL_PROJECTION);
-            OpenGL.glLoadIdentity();
-            OpenGL.glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f); // Set orthographic projection
+            OpenGL.glShadeModel(OpenGL.GL_SMOOTH);
 
-            OpenGL.glMatrixMode(OpenGL.GL_MODELVIEW);
-            OpenGL.glLoadIdentity();
+            OpenGL.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Background color
+           
+            
         }
 
         public void Draw()
         {
-            if (_deviceContext == IntPtr.Zero || _renderingContext == IntPtr.Zero)
+            if (_deviceContext == nint.Zero || _renderingContext == nint.Zero)
                 return;
 
             Console.WriteLine("Clearing buffers...");
@@ -104,7 +103,7 @@ namespace Solar_system_Nudel.Classes
 
             Console.WriteLine("Drawing 2D features...");
 
-            OpenGL.glPointSize(10.0f); // Set point size for visibility
+           // OpenGL.glPointSize(10.0f); // Set point size for visibility
 
             OpenGL.glBegin(OpenGL.GL_POINTS); // Start rendering points
             OpenGL.glColor3f(1.0f, 0.0f, 0.0f); // Red
@@ -123,9 +122,9 @@ namespace Solar_system_Nudel.Classes
 
         public void Cleanup()
         {
-            if (_renderingContext != IntPtr.Zero)
+            if (_renderingContext != nint.Zero)
             {
-                OpenGL.wglMakeCurrent(IntPtr.Zero, IntPtr.Zero);
+                OpenGL.wglMakeCurrent(nint.Zero, nint.Zero);
                 OpenGL.wglDeleteContext(_renderingContext);
             }
         }

@@ -1801,5 +1801,48 @@ namespace Solar_system_Nudel.Classes.OpenGLFolder
         public static extern void glVertexPointer(int size, uint type, int stride, object[] pointer);
         [DllImport(GL_DLL, EntryPoint = "glViewport")]
         public static extern void glViewport(int x, int y, int width, int height);
+        public const uint PFD_TYPE_RGBA = 0;
+        public const uint PFD_TYPE_COLORINDEX = 1;
+
+        /* layer types */
+        public const uint PFD_MAIN_PLANE = 0;
+        public const uint PFD_OVERLAY_PLANE = 1;
+        public const uint PFD_UNDERLAY_PLANE = 0xff; // (-1)
+
+        /* PIXELFORMATDESCRIPTOR flags */
+       
+
+        /* PIXELFORMATDESCRIPTOR flags for use in ChoosePixelFormat only */
+        public const uint PFD_DEPTH_DONTCARE = 0x20000000;
+        public const uint PFD_DOUBLEBUFFER_DONTCARE = 0x40000000;
+        public const uint PFD_STEREO_DONTCARE = 0x80000000;
+
+        // ChoosePixelFormat
+        [DllImport("gdi32.dll")]
+        public static extern int ChoosePixelFormat(IntPtr hdc, ref WGL.PIXELFORMATDESCRIPTOR pfd);
+
+        // SetPixelFormat
+        [DllImport("gdi32.dll")]
+        public static extern bool SetPixelFormat(IntPtr hdc, int format, ref WGL.PIXELFORMATDESCRIPTOR pfd);
+
+        // GetDC
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetDC(IntPtr hWnd);
+
+        // SwapBuffers
+        [DllImport("gdi32.dll")]
+        public static extern bool SwapBuffers(IntPtr hdc);
+
+        // OpenGL functions
+        [DllImport("opengl32.dll")]
+        public static extern IntPtr wglCreateContext(IntPtr hdc);
+
+        [DllImport("opengl32.dll")]
+        public static extern bool wglMakeCurrent(IntPtr hdc, IntPtr hglrc);
+
+        [DllImport("opengl32.dll")]
+        public static extern bool wglDeleteContext(IntPtr hglrc);
+
+
     }
 }
