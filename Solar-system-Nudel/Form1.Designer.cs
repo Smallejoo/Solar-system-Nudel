@@ -34,6 +34,7 @@
             // 
             // timer1
             // 
+            timer1.Interval = 16;
             timer1.Tick += timer1_Tick;
             // 
             // Form1
