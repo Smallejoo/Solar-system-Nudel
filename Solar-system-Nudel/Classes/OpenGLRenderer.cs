@@ -264,7 +264,7 @@ namespace Solar_system_Nudel.Classes
             double[] Befor_Change_Metrix = new double[16];
             double[] current_Change_Metrix = new double[16];
 
-//            OpenGL.glGetDoublev(OpenGL.GL_MODELVIEW_MATRIX, Befor_Change_Metrix); 
+            OpenGL.glGetDoublev(OpenGL.GL_MODELVIEW_MATRIX, Befor_Change_Metrix); 
             OpenGL.glDepthMask((byte)OpenGL.GL_TRUE);
             OpenGL.glDisable(OpenGL.GL_STENCIL_TEST);
 
@@ -273,26 +273,26 @@ namespace Solar_system_Nudel.Classes
             InitSpace();
             RenderPlanet(CurentSpace.MotherPlanet);
             CurentSpace.EarthSolarSystem();
+            DrawBigFloor();
             foreach (Planet Curplanet in CurentSpace.PlanetList)
             {
                 RenderPlanet(Curplanet);
             }
-  //          OpenGL.glGetDoublev(OpenGL.GL_MODELVIEW_MATRIX, current_Change_Metrix);
+            OpenGL.glGetDoublev(OpenGL.GL_MODELVIEW_MATRIX, current_Change_Metrix);
             if(firstFrame==0)
             {
-    //            OpenGL.glGetDoublev(OpenGL.GL_MODELVIEW_MATRIX,Global_currMetrix);
-      //          firstFrame++;
+                OpenGL.glGetDoublev(OpenGL.GL_MODELVIEW_MATRIX,Global_currMetrix);
+                firstFrame++;
             }
             else
             {
-        //        OpenGL.glMultMatrixd(Global_currMetrix);
+                OpenGL.glMultMatrixd(Global_currMetrix);
             }
-          //  OpenGL.glGetDoublev(OpenGL.GL_MODELVIEW_MATRIX, Global_currMetrix);
+           OpenGL.glGetDoublev(OpenGL.GL_MODELVIEW_MATRIX, Global_currMetrix);
 
-            //OpenGL.glLoadMatrixd(Befor_Change_Metrix);
-            //OpenGL.glMultMatrixd(Global_currMetrix);
+            OpenGL.glLoadMatrixd(Befor_Change_Metrix);
+            OpenGL.glMultMatrixd(Global_currMetrix);
 
-            DrawBigFloor();
             OpenGL.glFlush();
             OpenGL.SwapBuffers(_deviceContext);
 

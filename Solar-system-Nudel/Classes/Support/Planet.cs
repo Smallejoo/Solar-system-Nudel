@@ -20,7 +20,7 @@ namespace Solar_system_Nudel.Classes.Support
             Vector3<float> color = new Vector3<float>(col1, col2, col3);
             PlanetColor=color;
 
-        }
+        }// pointers bugs ... 
         public Planet(string Name, Vector3<double> cordinats, Planet Orbiting, double size)
         {
             this.PlanetName = Name;
