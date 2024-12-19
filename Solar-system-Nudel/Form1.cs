@@ -76,7 +76,8 @@ namespace Solar_system_Nudel
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
-            Renderer.Draw();
+            //Renderer.Draw();
+            Renderer.DrawSpace();
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -86,8 +87,9 @@ namespace Solar_system_Nudel
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            Renderer.Draw();
-            
+            //Renderer.Draw();
+
+            Renderer.DrawSpace();
         }
     }
 }

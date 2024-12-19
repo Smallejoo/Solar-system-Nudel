@@ -299,5 +299,14 @@ namespace Solar_system_Nudel.Classes.OpenGLFolder
         [DllImport(GLU_DLL, EntryPoint = "gluEndPolygon")]
         public static extern void gluEndPolygon(nint tess);
 
+
+
+
+
+
+
+
+
+
     }
 }
