@@ -50,9 +50,10 @@ namespace Solar_system_Nudel.Classes.Support
         public string PlanetName { get; set; }
         public Vector3<double> PlantPosition { get; set; }
         public Planet PlanetOrbiting { get; set; }
-        public Bitmap PlanetTexture { get; set; } 
+        public uint PlanetTextureID { get; set; } 
         public double PlanetSize { get; set; }  
         public int PlanetSpeed { get; set; } 
+        
 
         public Vector3<float> PlanetColor {  get; set; }
 

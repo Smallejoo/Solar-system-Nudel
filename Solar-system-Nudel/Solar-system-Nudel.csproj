@@ -10,8 +10,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Textures\Earth.jpg" />
+    <None Remove="Textures\Mars.jpg" />
+    <None Remove="Textures\Mercury.jpg" />
+    <None Remove="Textures\Sun.jpg" />
+    <None Remove="Textures\Venus.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Textures\Earth.jpg" />
+    <EmbeddedResource Include="Textures\Mars.jpg" />
+    <EmbeddedResource Include="Textures\Mercury.jpg" />
+    <EmbeddedResource Include="Textures\Sun.jpg" />
+    <EmbeddedResource Include="Textures\Venus.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="OpenTK" Version="4.8.2" />
     <PackageReference Include="OpenTK.GLControl" Version="4.0.1" />
+    <PackageReference Include="SixLabors.ImageSharp.Web" Version="3.1.3" />
   </ItemGroup>
 
 </Project>

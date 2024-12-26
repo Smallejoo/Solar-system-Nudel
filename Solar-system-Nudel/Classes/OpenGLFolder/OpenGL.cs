@@ -1843,6 +1843,9 @@ namespace Solar_system_Nudel.Classes.OpenGLFolder
         [DllImport("opengl32.dll")]
         public static extern bool wglDeleteContext(IntPtr hglrc);
 
+        [DllImport(GL_DLL, EntryPoint = "glTexParameteri")]
+        public static extern void glTexParameteri(uint target, uint pname, uint param);
+
 
     }
 }

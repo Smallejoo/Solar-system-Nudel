@@ -63,6 +63,16 @@ namespace Solar_system_Nudel
                         Renderer.OutCommands = 8;
                         break;
                     }
+                    case Keys.R:
+                    {
+                        Renderer.OutCommands = 9;
+                        break;
+                    }
+                    case Keys.F:
+                    {
+                        Renderer.OutCommands = 10;
+                        break;
+                    }
 
 
             }

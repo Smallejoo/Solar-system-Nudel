@@ -100,7 +100,15 @@ namespace Solar_system_Nudel.Classes.Support
             Vertical_Angle -= 1.0f;
             Vertical_Angle = Math.Clamp(Vertical_Angle, -89.0f, 89.0f); // Prevent flipping
         }
+        public void camUP()
+        {
+            CameraPlacment_Y += 2;
+        }
 
+        public void camDown()
+        {
+            CameraPlacment_Y -= 2;
+        }
         public void ApplyMovment()
         {
             // Calculate EyeSight (camera direction vector)
@@ -118,11 +126,11 @@ namespace Solar_system_Nudel.Classes.Support
             float upZ = 0.0f;
 
             // Debugging
-            Console.WriteLine("-------------------------------------------------------------");
-            Console.WriteLine($"Camera Position:    X: {CameraPlacment_X}, Y: {CameraPlacment_Y}, Z: {CameraPlacment_Z}");
-            Console.WriteLine($"Eye Direction:      X: {EyeSight_X}, Y: {EyeSight_Y}, Z: {EyeSight_Z}");
-            Console.WriteLine($"Camera Rotation:    Yaw: {Horizontal_Angle}, Pitch: {Vertical_Angle}");
-            Console.WriteLine("-------------------------------------------------------------");
+            //Console.WriteLine("-------------------------------------------------------------");
+            //Console.WriteLine($"Camera Position:    X: {CameraPlacment_X}, Y: {CameraPlacment_Y}, Z: {CameraPlacment_Z}");
+            //Console.WriteLine($"Eye Direction:      X: {EyeSight_X}, Y: {EyeSight_Y}, Z: {EyeSight_Z}");
+            //Console.WriteLine($"Camera Rotation:    Yaw: {Horizontal_Angle}, Pitch: {Vertical_Angle}");
+            //Console.WriteLine("-------------------------------------------------------------");
 
             // Apply the camera transformation
             GLU.gluLookAt(

@@ -2,6 +2,7 @@
 using OpenTK.Mathematics;
 using Solar_system_Nudel.Classes.OpenGLFolder;
 using Solar_system_Nudel.Classes.Support;
+using Solar_system_Nudel.Textures;
 using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -18,7 +19,19 @@ namespace Solar_system_Nudel.Classes
         private nint _renderingContext; // Instance of GL
         private nint _windowHandle; // The window pointer
 
-       
+        Space CurentSpace;
+        public Vector3<double> BasicCords = new Vector3<double>(0.0, 0.0, 0.0);
+        private float rotationAngle = 0.0f;
+        private float[] LightPosition = new float[4];
+        int firstFrame = 0;
+        Camera currentCam = new Camera();
+        public int OutCommands = 0;
+        bool isTextureEnabled = false;
+        GLUquadric GlobalQuadric;
+        private uint lastBoundTexture = 0;
+
+
+
 
         public OpenGLRenderer(nint windowHandle)
         {
@@ -91,7 +104,20 @@ namespace Solar_system_Nudel.Classes
             OpenGL.glClearColor(0.0f, 0.0f, 0.0f, 0.5f);
            OpenGL.glClearDepth(1.0f);
 
-            OpenGL.glEnable(OpenGL.GL_LIGHT0); 
+            OpenGL.glEnable(OpenGL.GL_LIGHTING);
+            OpenGL.glEnable(OpenGL.GL_LIGHT0);
+            float[] ambientLight = { 0.5f, 0.5f, 0.5f, 1.0f };  // Ambient light (soft glow)
+            float[] diffuseLight = { 1.0f, 1.0f, 1.0f, 1.0f };  // Diffuse light (stronger)
+            float[] specularLight = { 1.0f, 1.0f, 1.0f, 1.0f }; // Specular highlight
+
+            OpenGL.glLightfv(OpenGL.GL_LIGHT0, OpenGL.GL_AMBIENT, ambientLight);
+            OpenGL.glLightfv(OpenGL.GL_LIGHT0, OpenGL.GL_DIFFUSE, diffuseLight);
+            OpenGL.glLightfv(OpenGL.GL_LIGHT0, OpenGL.GL_SPECULAR, specularLight);
+
+            //LightPosition[0] = 0; LightPosition[1] = 5; LightPosition[2] = 10; LightPosition[3] = 1;
+            float[] lightPos = { 0.0f, 0.0f, 0.0f, 1.0f };
+            OpenGL.glLightfv(OpenGL.GL_LIGHT0, OpenGL.GL_POSITION, lightPos);
+
             OpenGL.glEnable(OpenGL.GL_COLOR_MATERIAL);
             OpenGL.glColorMaterial(OpenGL.GL_FRONT_AND_BACK, OpenGL.GL_AMBIENT_AND_DIFFUSE);
 
@@ -105,28 +131,27 @@ namespace Solar_system_Nudel.Classes
             OpenGL.glLoadIdentity();
             GLU.gluPerspective(45.0, 1.0, 0.4, 1000.0);
 
-            LightPosition[0] = 0; LightPosition[1] = 5; LightPosition[2] = 10; LightPosition[3] = 1;
-            OpenGL.glLightfv(OpenGL.GL_LIGHT0, OpenGL.GL_POSITION, LightPosition);
 
             OpenGL.glMatrixMode(OpenGL.GL_MODELVIEW);
             OpenGL.glLoadIdentity();
 
-            OpenGL.glEnable(OpenGL.GL_BLEND);
+            //OpenGL.glEnable(OpenGL.GL_BLEND);
             OpenGL.glBlendFunc(OpenGL.GL_SRC_ALPHA, OpenGL.GL_ONE_MINUS_SRC_ALPHA);
+
+            GlobalQuadric = GLU.gluNewQuadric();
+            GLU.gluQuadricNormals(GlobalQuadric, GLU.GLU_SMOOTH);
+            GLU.gluQuadricTexture(GlobalQuadric, 1);
 
             currentCam.InitCamera();
             CurentSpace = new Space();
             OpenGL.glLoadIdentity();
             OpenGL.glGetDoublev(OpenGL.GL_MODELVIEW_MATRIX,Global_currMetrix);
+            InitSpace(); // putted it here cos it was eating up memory
 
         }
-        Space CurentSpace;
-        public Vector3<double> BasicCords = new Vector3<double>(0.0, 0.0, 0.0);
-        private float rotationAngle = 0.0f;
-        private float[] LightPosition= new float[4];
-        int firstFrame = 0;
-        Camera currentCam= new Camera();
-        public int OutCommands = 0;
+
+
+
         public void updateMovmentCords()
         {
             switch (OutCommands)
@@ -175,7 +200,16 @@ namespace Solar_system_Nudel.Classes
                         currentCam.DownCam();
                         break;
                     }
-
+                case 9:
+                    {
+                        currentCam.camUP();
+                        break;
+                    }
+                    case 10:
+                    {
+                        currentCam.camDown();   
+                        break;
+                    }
             }
             OutCommands = 0; 
         }
@@ -189,94 +223,64 @@ namespace Solar_system_Nudel.Classes
         public int color = 0;
         public void RenderPlanet(Planet curentPlanet)
         {
-         var quadric = GLU.gluNewQuadric();
-            GLU.gluQuadricNormals(quadric, GLU.GLU_SMOOTH);
+            if(!isTextureEnabled)
+            {
+            OpenGL.glEnable(OpenGL.GL_TEXTURE_2D); // Enable texturing
+                isTextureEnabled = true;
+            }
+            // OpenGL.glBindTexture(OpenGL.GL_TEXTURE_2D, textureID); // Bind the texture
+            // var texture = ImgLoad.GetTexture("Earth");
 
+            if (lastBoundTexture != curentPlanet.PlanetTextureID)
+            {
+                OpenGL.glBindTexture(OpenGL.GL_TEXTURE_2D, curentPlanet.PlanetTextureID);
+                lastBoundTexture = curentPlanet.PlanetTextureID;
+            }
+
+            OpenGL.glColor3f(1.0f, 1.0f, 1.0f);
+
+            
             OpenGL.glPushMatrix();
 
             OpenGL.glTranslated(curentPlanet.PlantPosition.X, curentPlanet.PlantPosition.Y, curentPlanet.PlantPosition.Z);
 
+            // OpenGL.glColor3f(curentPlanet.PlanetColor.X, curentPlanet.PlanetColor.Y, curentPlanet.PlanetColor.Z);
 
-            OpenGL.glColor3f(curentPlanet.PlanetColor.X, curentPlanet.PlanetColor.Y, curentPlanet.PlanetColor.Z);
-            GLU.gluSphere(quadric, curentPlanet.PlanetSize, 30, 30);
-            GLU.gluDeleteQuadric(quadric);
+            GLU.gluSphere(GlobalQuadric, curentPlanet.PlanetSize, 30, 30);
+//            GLU.gluDeleteQuadric(GlobalQuadric);
 
             OpenGL.glPopMatrix();
 
-
+          // OpenGL.glDisable(OpenGL.GL_TEXTURE_2D); 
 
         }
-        private void RenderSphere(double radius)
-        {
-            var quadric = GLU.gluNewQuadric();
-            GLU.gluQuadricNormals(quadric, GLU.GLU_SMOOTH); // Smooth lighting
-            GLU.gluSphere(quadric, radius, 30, 30); // Render the sphere
-            GLU.gluDeleteQuadric(quadric); // Clean up
-        }
-
-        public void Draw3Shapes()
-        {
-            if (_deviceContext == nint.Zero || _renderingContext == nint.Zero)
-                return;
-
-            // Clear the screen and depth buffer
-            OpenGL.glClear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
-            OpenGL.glLoadIdentity(); // Reset the MODELVIEW matrix
-
-            // Apply the camera movement
-            updateMovmentCords();
-            currentCam.ApplyMovment();
-
-            // Render Figure 1 (Sphere 1)
-            OpenGL.glPushMatrix();
-            OpenGL.glTranslated(-5.0, 0.0, -10.0); // Move left and slightly back
-            OpenGL.glColor3f(1.0f, 0.0f, 0.0f); // Red
-            RenderSphere(1.0);
-            OpenGL.glPopMatrix();
-
-            // Render Figure 2 (Sphere 2)
-            OpenGL.glPushMatrix();
-            OpenGL.glTranslated(0.0, 0.0, -10.0); // Center
-            OpenGL.glColor3f(0.0f, 1.0f, 0.0f); // Green
-            RenderSphere(1.5);
-            OpenGL.glPopMatrix();
-
-            // Render Figure 3 (Sphere 3)
-            OpenGL.glPushMatrix();
-            OpenGL.glTranslated(5.0, 0.0, -10.0); // Move right and slightly back
-            OpenGL.glColor3f(0.0f, 0.0f, 1.0f); // Blue
-            RenderSphere(2.0);
-            OpenGL.glPopMatrix();
-
-            // Finalize rendering
-            OpenGL.glFlush();
-            OpenGL.SwapBuffers(_deviceContext); // Display the frame
-        }
-
+        
         public void DrawSpace()
         {
             if (_deviceContext == nint.Zero || _renderingContext == nint.Zero)
                 return;
-
+            // the clear some times fucks with memorry too
             OpenGL.glClear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT | OpenGL.GL_STENCIL_BUFFER_BIT);
-            OpenGL.glLoadIdentity();
+            OpenGL.glLoadIdentity(); // here too
 
-            double[] Befor_Change_Metrix = new double[16];
+
+            double[] Befor_Change_Metrix = new double[16]; // here too about 20 but rarly 
             double[] current_Change_Metrix = new double[16];
 
-            OpenGL.glGetDoublev(OpenGL.GL_MODELVIEW_MATRIX, Befor_Change_Metrix); 
+            OpenGL.glGetDoublev(OpenGL.GL_MODELVIEW_MATRIX, Befor_Change_Metrix);  // here too i am leaking some 
             OpenGL.glDepthMask((byte)OpenGL.GL_TRUE);
             OpenGL.glDisable(OpenGL.GL_STENCIL_TEST);
 
             updateMovmentCords();
             currentCam.ApplyMovment();
-            InitSpace();
-            RenderPlanet(CurentSpace.MotherPlanet);
-            CurentSpace.EarthSolarSystem();
-            DrawBigFloor();
-            foreach (Planet Curplanet in CurentSpace.PlanetList)
+           // InitSpace(); //jum 0f 17 memory
+            RenderPlanet(CurentSpace.MotherPlanet);// i think ate here too 
+            //CurentSpace.EarthSolarSystem();
+
+           // DrawBigFloor();
+            foreach (Planet Curplanet in CurentSpace.PlanetList)// at some point eats about 20 memory for render planet 
             {
-                RenderPlanet(Curplanet);
+                RenderPlanet(Curplanet); // over 50 some times
             }
             OpenGL.glGetDoublev(OpenGL.GL_MODELVIEW_MATRIX, current_Change_Metrix);
             if(firstFrame==0)
@@ -382,6 +386,54 @@ namespace Solar_system_Nudel.Classes
             OpenGL.glPopMatrix();
 
         }
+
+        private void RenderSphere(double radius)
+        {
+            var quadric = GLU.gluNewQuadric();
+            GLU.gluQuadricNormals(quadric, GLU.GLU_SMOOTH); // Smooth lighting
+            GLU.gluSphere(quadric, radius, 30, 30); // Render the sphere
+            GLU.gluDeleteQuadric(quadric); // Clean up
+        }
+
+        public void Draw3Shapes()
+        {
+            if (_deviceContext == nint.Zero || _renderingContext == nint.Zero)
+                return;
+
+            // Clear the screen and depth buffer
+            OpenGL.glClear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
+            OpenGL.glLoadIdentity(); // Reset the MODELVIEW matrix
+
+            // Apply the camera movement
+            updateMovmentCords();
+            currentCam.ApplyMovment();
+
+            // Render Figure 1 (Sphere 1)
+            OpenGL.glPushMatrix();
+            OpenGL.glTranslated(-5.0, 0.0, -10.0); // Move left and slightly back
+            OpenGL.glColor3f(1.0f, 0.0f, 0.0f); // Red
+            RenderSphere(1.0);
+            OpenGL.glPopMatrix();
+
+            // Render Figure 2 (Sphere 2)
+            OpenGL.glPushMatrix();
+            OpenGL.glTranslated(0.0, 0.0, -10.0); // Center
+            OpenGL.glColor3f(0.0f, 1.0f, 0.0f); // Green
+            RenderSphere(1.5);
+            OpenGL.glPopMatrix();
+
+            // Render Figure 3 (Sphere 3)
+            OpenGL.glPushMatrix();
+            OpenGL.glTranslated(5.0, 0.0, -10.0); // Move right and slightly back
+            OpenGL.glColor3f(0.0f, 0.0f, 1.0f); // Blue
+            RenderSphere(2.0);
+            OpenGL.glPopMatrix();
+
+            // Finalize rendering
+            OpenGL.glFlush();
+            OpenGL.SwapBuffers(_deviceContext); // Display the frame
+        }
+
 
         public void Resize(int newWidth, int newHeight)
         {
