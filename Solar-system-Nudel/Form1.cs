@@ -74,6 +74,12 @@ namespace Solar_system_Nudel
                         break;
                     }
 
+                    case Keys.Tab:
+                    {
+                        Renderer.OutCommands = 11;
+                        break;
+                    }
+
 
             }
             //Invalidate();

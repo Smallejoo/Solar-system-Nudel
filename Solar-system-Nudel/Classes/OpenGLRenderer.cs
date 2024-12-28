@@ -29,7 +29,7 @@ namespace Solar_system_Nudel.Classes
         bool isTextureEnabled = false;
         GLUquadric GlobalQuadric;
         private uint lastBoundTexture = 0;
-
+        private double DeltaTime = 0.3;
 
 
 
@@ -149,7 +149,30 @@ namespace Solar_system_Nudel.Classes
             InitSpace(); // putted it here cos it was eating up memory
 
         }
+        public void RenderBackGround()
+        {
+            if(!isTextureEnabled)
+            {
+            OpenGL.glEnable(OpenGL.GL_TEXTURE_2D);
+                isTextureEnabled = true;
+            }
+            OpenGL.glBindTexture(OpenGL.GL_TEXTURE_2D,CurentSpace.SpaceImageID);
+            OpenGL.glColor3f(1.0f, 1.0f, 1.0f);
 
+            OpenGL.glPushMatrix();
+            OpenGL.glTranslated(0.0f, 0.0f, 0.0f);
+          //
+          //OpenGL.glTranslated(currentCam.CameraPlacment_X, currentCam.CameraPlacment_Y, currentCam.CameraPlacment_Z);
+            GLU.gluQuadricOrientation(GlobalQuadric, GLU.GLU_INSIDE);
+
+            GLU.gluSphere(GlobalQuadric, 300, 30, 30);
+
+            OpenGL.glPopMatrix();
+
+
+            GLU.gluQuadricOrientation(GlobalQuadric, GLU.GLU_OUTSIDE);
+
+        }
 
 
         public void updateMovmentCords()
@@ -210,6 +233,12 @@ namespace Solar_system_Nudel.Classes
                         currentCam.camDown();   
                         break;
                     }
+
+                    case 11:
+                    {
+                        currentCam.camReset();
+                        break;
+                    }
             }
             OutCommands = 0; 
         }
@@ -243,7 +272,9 @@ namespace Solar_system_Nudel.Classes
             OpenGL.glPushMatrix();
 
             OpenGL.glTranslated(curentPlanet.PlantPosition.X, curentPlanet.PlantPosition.Y, curentPlanet.PlantPosition.Z);
-
+            OpenGL.glRotated(curentPlanet.SelfRotationAngle, 0, 1, 0);
+            //if (curentPlanet.PlanetName == "Earth")
+            //    Console.WriteLine($"current planet angle of rotation {curentPlanet.SelfRotationAngle}");
             // OpenGL.glColor3f(curentPlanet.PlanetColor.X, curentPlanet.PlanetColor.Y, curentPlanet.PlanetColor.Z);
 
             GLU.gluSphere(GlobalQuadric, curentPlanet.PlanetSize, 30, 30);
@@ -263,13 +294,15 @@ namespace Solar_system_Nudel.Classes
             OpenGL.glClear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT | OpenGL.GL_STENCIL_BUFFER_BIT);
             OpenGL.glLoadIdentity(); // here too
 
-
+            
             double[] Befor_Change_Metrix = new double[16]; // here too about 20 but rarly 
             double[] current_Change_Metrix = new double[16];
 
             OpenGL.glGetDoublev(OpenGL.GL_MODELVIEW_MATRIX, Befor_Change_Metrix);  // here too i am leaking some 
             OpenGL.glDepthMask((byte)OpenGL.GL_TRUE);
             OpenGL.glDisable(OpenGL.GL_STENCIL_TEST);
+
+            RenderBackGround();
 
             updateMovmentCords();
             currentCam.ApplyMovment();
@@ -281,6 +314,9 @@ namespace Solar_system_Nudel.Classes
             foreach (Planet Curplanet in CurentSpace.PlanetList)// at some point eats about 20 memory for render planet 
             {
                 RenderPlanet(Curplanet); // over 50 some times
+                Curplanet.UpdatePlanetPosition(DeltaTime);
+                Curplanet.UpdateSelfRotation(DeltaTime);
+                CurentSpace.MotherPlanet.UpdateSelfRotation(DeltaTime);
             }
             OpenGL.glGetDoublev(OpenGL.GL_MODELVIEW_MATRIX, current_Change_Metrix);
             if(firstFrame==0)
@@ -299,7 +335,7 @@ namespace Solar_system_Nudel.Classes
 
             OpenGL.glFlush();
             OpenGL.SwapBuffers(_deviceContext);
-
+            
 
         }
         public void Draw()

@@ -104,7 +104,31 @@ namespace Solar_system_Nudel.Classes.Support
         {
             CameraPlacment_Y += 2;
         }
+        public void camReset()
+        {
 
+
+          CameraPlacment_X = 0.0f;
+
+        EyeSight_X = 0.0f;
+
+
+        Horizontal_Angle = 0.0f; // Yaw
+        Vertical_Angle = 0.0f;   // Pitch
+
+            CameraPlacment_Y = 20f;
+            CameraPlacment_Z = 30f;
+
+            EyeSight_Y = 8.0f;
+            EyeSight_Z = 1.0f;
+
+
+            CamRotate_X = 0.0f;
+            CamRotate_Y = 1.0f; // Default up vector
+            CamRotate_Z = 0.0f;
+
+
+        }
         public void camDown()
         {
             CameraPlacment_Y -= 2;

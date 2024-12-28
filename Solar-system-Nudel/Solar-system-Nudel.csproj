@@ -13,6 +13,8 @@
     <None Remove="Textures\Earth.jpg" />
     <None Remove="Textures\Mars.jpg" />
     <None Remove="Textures\Mercury.jpg" />
+    <None Remove="Textures\Moon.jpg" />
+    <None Remove="Textures\Space.jpg" />
     <None Remove="Textures\Sun.jpg" />
     <None Remove="Textures\Venus.jpg" />
   </ItemGroup>
@@ -21,6 +23,8 @@
     <EmbeddedResource Include="Textures\Earth.jpg" />
     <EmbeddedResource Include="Textures\Mars.jpg" />
     <EmbeddedResource Include="Textures\Mercury.jpg" />
+    <EmbeddedResource Include="Textures\Moon.jpg" />
+    <EmbeddedResource Include="Textures\Space.jpg" />
     <EmbeddedResource Include="Textures\Sun.jpg" />
     <EmbeddedResource Include="Textures\Venus.jpg" />
   </ItemGroup>

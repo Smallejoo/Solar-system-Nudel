@@ -21,6 +21,12 @@ namespace Solar_system_Nudel.Classes.Support
             this.Y = copyit.Y;
             this.Z = copyit.Z;
         }
+        public void Put(WhatEva x,WhatEva y,WhatEva z)
+        {
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
+        }
         public Vector3(WhatEva x, WhatEva y, WhatEva z)
         {
             this.X = x;
