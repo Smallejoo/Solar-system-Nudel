@@ -15,18 +15,19 @@ namespace Solar_system_Nudel.Classes.Support
        
         public Space()
         { 
-        MotherPlanet= new Planet("Sun",BasicCordsSun,null,10,1.0f,0.3f,0.3f,0,true,0.5);
+        MotherPlanet= new Sun("Sun",BasicCordsSun,null,10,1.0f,0.3f,0.3f,0,true,0.5);
             MotherPlanet.MainStar=true;
-            MotherPlanet.PlanetTextureID = TextureRender.LoadTextur(MotherPlanet.PlanetName);
-
+            ((Sun)MotherPlanet).PlanetTextureID = TextureRender.LoadTextur(MotherPlanet.PlanetName);
+            ((Sun)MotherPlanet).SunBlureEffectID = TextureRender.LoadTextur("SunGlow");
+            ((Sun)MotherPlanet).SunFlameEffectID = TextureRender.LoadTextur("SunFlames");
             EarthSolarSystem();
         }
         public Planet MotherPlanet;
         public List<Planet> PlanetList= new List<Planet>(); 
         public Bitmap SpaceTexture;
-        public Vector3<double> BasicCords=new Vector3<double>(0.0,0.0,0.0);
+        public Vector3 BasicCords=new Vector3(0.0f,0.0f,0.0f);
         public uint SpaceImageID;
-        public Vector3<double> BasicCordsSun = new Vector3<double>(0.0, 0.0, 0.0);
+        public Vector3 BasicCordsSun = new Vector3(0.0f, 0.0f, 0.0f);
 
         public bool AddNewPlant(Planet newPlanet)
         {

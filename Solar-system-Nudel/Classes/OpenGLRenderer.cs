@@ -6,6 +6,7 @@ using Solar_system_Nudel.Textures;
 using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Solar_system_Nudel.Classes
 {
@@ -13,6 +14,15 @@ namespace Solar_system_Nudel.Classes
     {
         int Width = 800;
         int Height = 600;
+
+     
+        //shadow related verbs .
+        private uint depthFBO;
+        private uint depthTexture;  
+        private const int SHADOW_WIDTH = 1024;
+        private const int SHADOW_HEIGHT = 1024;
+
+
         double[] Global_currMetrix = new double[16];
 
         private nint _deviceContext; // Overall area to draw
@@ -20,7 +30,7 @@ namespace Solar_system_Nudel.Classes
         private nint _windowHandle; // The window pointer
 
         Space CurentSpace;
-        public Vector3<double> BasicCords = new Vector3<double>(0.0, 0.0, 0.0);
+        public Solar_system_Nudel.Classes.Vector3 BasicCords = new Vector3(0.0f, 0.0f, 0.0f);
         private float rotationAngle = 0.0f;
         private float[] LightPosition = new float[4];
         int firstFrame = 0;
@@ -29,7 +39,7 @@ namespace Solar_system_Nudel.Classes
         bool isTextureEnabled = false;
         GLUquadric GlobalQuadric;
         private uint lastBoundTexture = 0;
-        private double DeltaTime = 0.3;
+        private double DeltaTime = 0.03;
 
 
 
@@ -95,7 +105,9 @@ namespace Solar_system_Nudel.Classes
 
             return true;
         }
+        
 
+      
         public void InitRender()
         {
             if (_deviceContext == nint.Zero || _renderingContext == nint.Zero)
@@ -104,6 +116,12 @@ namespace Solar_system_Nudel.Classes
             OpenGL.glClearColor(0.0f, 0.0f, 0.0f, 0.5f);
            OpenGL.glClearDepth(1.0f);
 
+            OpenGL.glEnable(OpenGL.GL_DEPTH_TEST);
+            OpenGL.glDepthFunc(OpenGL.GL_LEQUAL);
+            ////////////////////// Shadow //////////////////////////////
+           //OpenGL.glEnable(OpenGL.GL_STENCIL_TEST);  // Enable stencil testing
+            //OpenGL.glClearStencil(0);
+            //////////////////////////////
             OpenGL.glEnable(OpenGL.GL_LIGHTING);
             OpenGL.glEnable(OpenGL.GL_LIGHT0);
             float[] ambientLight = { 0.5f, 0.5f, 0.5f, 1.0f };  // Ambient light (soft glow)
@@ -114,12 +132,17 @@ namespace Solar_system_Nudel.Classes
             OpenGL.glLightfv(OpenGL.GL_LIGHT0, OpenGL.GL_DIFFUSE, diffuseLight);
             OpenGL.glLightfv(OpenGL.GL_LIGHT0, OpenGL.GL_SPECULAR, specularLight);
 
+           
             //LightPosition[0] = 0; LightPosition[1] = 5; LightPosition[2] = 10; LightPosition[3] = 1;
             float[] lightPos = { 0.0f, 0.0f, 0.0f, 1.0f };
             OpenGL.glLightfv(OpenGL.GL_LIGHT0, OpenGL.GL_POSITION, lightPos);
 
             OpenGL.glEnable(OpenGL.GL_COLOR_MATERIAL);
             OpenGL.glColorMaterial(OpenGL.GL_FRONT_AND_BACK, OpenGL.GL_AMBIENT_AND_DIFFUSE);
+
+            OpenGL.glEnable(OpenGL.GL_TEXTURE_2D); // Enable textures
+            OpenGL.glTexEnvf(OpenGL.GL_TEXTURE_ENV, OpenGL.GL_TEXTURE_ENV_MODE, OpenGL.GL_MODULATE);
+
 
             OpenGL.glEnable(OpenGL.GL_DEPTH_TEST);
             OpenGL.glDepthFunc(OpenGL.GL_LEQUAL);
@@ -165,7 +188,7 @@ namespace Solar_system_Nudel.Classes
           //OpenGL.glTranslated(currentCam.CameraPlacment_X, currentCam.CameraPlacment_Y, currentCam.CameraPlacment_Z);
             GLU.gluQuadricOrientation(GlobalQuadric, GLU.GLU_INSIDE);
 
-            GLU.gluSphere(GlobalQuadric, 300, 30, 30);
+            GLU.gluSphere(GlobalQuadric, 400, 30, 30);
 
             OpenGL.glPopMatrix();
 
@@ -250,46 +273,73 @@ namespace Solar_system_Nudel.Classes
 
         }
         public int color = 0;
+        public void PlanetShadows(Planet CurrPlanet)
+        {
+             Vector3 LightNormal= LightDirection(CurrPlanet.PlantPosition);
+
+            OpenGL.glEnable(OpenGL.GL_LIGHTING);
+            OpenGL.glEnable(OpenGL.GL_LIGHT0);
+
+            float[] matAmbient = { 0.5f, 0.5f, 0.5f, 1.0f };
+            float[] matDiffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
+            OpenGL.glMaterialfv(OpenGL.GL_FRONT_AND_BACK, OpenGL.GL_AMBIENT, matAmbient);
+            OpenGL.glMaterialfv(OpenGL.GL_FRONT_AND_BACK, OpenGL.GL_DIFFUSE, matDiffuse);
+
+            float[] lightDirection = { LightNormal.X, LightNormal.Y, LightNormal.Z, 0.0f }; // Directional light
+
+          
+           
+            OpenGL.glLightfv(OpenGL.GL_LIGHT0, OpenGL.GL_POSITION, lightDirection);
+
+            OpenGL.glEnable(OpenGL.GL_TEXTURE_2D);
+            OpenGL.glTexEnvf(OpenGL.GL_TEXTURE_ENV, OpenGL.GL_TEXTURE_ENV_MODE, OpenGL.GL_MODULATE);
+            OpenGL.glBindTexture(OpenGL.GL_TEXTURE_2D, CurrPlanet.PlanetTextureID);
+           // lastBoundTexture = CurrPlanet.PlanetTextureID;
+
+          
+        }
+
         public void RenderPlanet(Planet curentPlanet)
         {
-            if(!isTextureEnabled)
-            {
-            OpenGL.glEnable(OpenGL.GL_TEXTURE_2D); // Enable texturing
-                isTextureEnabled = true;
-            }
-            // OpenGL.glBindTexture(OpenGL.GL_TEXTURE_2D, textureID); // Bind the texture
-            // var texture = ImgLoad.GetTexture("Earth");
-
-            if (lastBoundTexture != curentPlanet.PlanetTextureID)
-            {
-                OpenGL.glBindTexture(OpenGL.GL_TEXTURE_2D, curentPlanet.PlanetTextureID);
-                lastBoundTexture = curentPlanet.PlanetTextureID;
-            }
-
-            OpenGL.glColor3f(1.0f, 1.0f, 1.0f);
-
+            // PlanetShadows(curentPlanet);
             
+                 if(!isTextureEnabled)
+                    {
+                     OpenGL.glEnable(OpenGL.GL_TEXTURE_2D); // Enable texturing
+                     isTextureEnabled = true;
+                    }
+
+                 if (lastBoundTexture != curentPlanet.PlanetTextureID)
+                   {
+                     OpenGL.glBindTexture(OpenGL.GL_TEXTURE_2D, curentPlanet.PlanetTextureID);
+                    lastBoundTexture = curentPlanet.PlanetTextureID;
+                   }
+                     
+            OpenGL.glColor3f(1.0f, 1.0f, 1.0f);
+            
+
             OpenGL.glPushMatrix();
 
             OpenGL.glTranslated(curentPlanet.PlantPosition.X, curentPlanet.PlantPosition.Y, curentPlanet.PlantPosition.Z);
             OpenGL.glRotated(curentPlanet.SelfRotationAngle, 0, 1, 0);
-            //if (curentPlanet.PlanetName == "Earth")
-            //    Console.WriteLine($"current planet angle of rotation {curentPlanet.SelfRotationAngle}");
-            // OpenGL.glColor3f(curentPlanet.PlanetColor.X, curentPlanet.PlanetColor.Y, curentPlanet.PlanetColor.Z);
 
+           
             GLU.gluSphere(GlobalQuadric, curentPlanet.PlanetSize, 30, 30);
-//            GLU.gluDeleteQuadric(GlobalQuadric);
+
 
             OpenGL.glPopMatrix();
 
-          // OpenGL.glDisable(OpenGL.GL_TEXTURE_2D); 
+           
 
         }
-        
+       
+
         public void DrawSpace()
         {
+
             if (_deviceContext == nint.Zero || _renderingContext == nint.Zero)
                 return;
+            
             // the clear some times fucks with memorry too
             OpenGL.glClear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT | OpenGL.GL_STENCIL_BUFFER_BIT);
             OpenGL.glLoadIdentity(); // here too
@@ -303,21 +353,22 @@ namespace Solar_system_Nudel.Classes
             OpenGL.glDisable(OpenGL.GL_STENCIL_TEST);
 
             RenderBackGround();
-
             updateMovmentCords();
             currentCam.ApplyMovment();
-           // InitSpace(); //jum 0f 17 memory
-            RenderPlanet(CurentSpace.MotherPlanet);// i think ate here too 
-            //CurentSpace.EarthSolarSystem();
 
-           // DrawBigFloor();
-            foreach (Planet Curplanet in CurentSpace.PlanetList)// at some point eats about 20 memory for render planet 
-            {
-                RenderPlanet(Curplanet); // over 50 some times
-                Curplanet.UpdatePlanetPosition(DeltaTime);
-                Curplanet.UpdateSelfRotation(DeltaTime);
-                CurentSpace.MotherPlanet.UpdateSelfRotation(DeltaTime);
-            }
+
+            
+            RenderPlanet(CurentSpace.MotherPlanet);// i think ate here too 
+            RenderPlanets();
+
+           // OpenGL.glDepthMask((byte)OpenGL.GL_FALSE);
+            Sun deSun=(Sun)CurentSpace.MotherPlanet;
+            deSun.RenderSunGlow(GlobalQuadric,(currentCam.CenterDis()));
+            deSun.RenderSunGlowSphere(GlobalQuadric, (currentCam.CenterDis()));
+
+            OpenGL.glDepthMask((byte)OpenGL.GL_TRUE); // importent 
+
+
             OpenGL.glGetDoublev(OpenGL.GL_MODELVIEW_MATRIX, current_Change_Metrix);
             if(firstFrame==0)
             {
@@ -338,6 +389,28 @@ namespace Solar_system_Nudel.Classes
             
 
         }
+        public void RenderPlanets()
+        {
+           
+            foreach (Planet Curplanet in CurentSpace.PlanetList)// at some point eats about 20 memory for render planet 
+            {
+                RenderPlanet(Curplanet); // over 50 some times   
+                Curplanet.UpdatePlanetPosition(DeltaTime);
+                Curplanet.UpdateSelfRotation(DeltaTime);
+                CurentSpace.MotherPlanet.UpdateSelfRotation(DeltaTime);
+            }
+
+
+        }
+        public Vector3 LightDirection(Vector3 PlanetPos)
+        {
+            Vector3 sunPos = new Vector3(0.0f, 0.0f, 0.0f);
+            Vector3 LightDirection = (sunPos.SubReturn(PlanetPos));
+            LightDirection.Normalize();
+            return LightDirection;
+            
+        }
+
         public void Draw()
         {
             if (_deviceContext == nint.Zero || _renderingContext == nint.Zero)
@@ -388,7 +461,7 @@ namespace Solar_system_Nudel.Classes
         {
             OpenGL.glEnable(OpenGL.GL_LIGHTING);
             OpenGL.glBegin(OpenGL.GL_QUADS);
-            OpenGL.glColor4d(0, 0, 1, 0.3);
+            OpenGL.glColor4d(1, 1, 1, 1);
             OpenGL.glVertex3d(5, 0, 5);
             OpenGL.glVertex3d(5, 0,-5);
             OpenGL.glVertex3d(-5, 0, -5);
@@ -396,11 +469,25 @@ namespace Solar_system_Nudel.Classes
             OpenGL.glEnd();
 
         }
+        void DrawBigWall()
+        {
+            OpenGL.glPushMatrix();
+            OpenGL.glTranslated(-50,0,0);
+            OpenGL.glEnable(OpenGL.GL_LIGHTING);
+            OpenGL.glBegin(OpenGL.GL_QUADS);
+            OpenGL.glColor4d(1, 1, 1, 1);
+            OpenGL.glVertex3d(0, 30, 30);
+            OpenGL.glVertex3d(0, 30, -30);
+            OpenGL.glVertex3d(0, -30, -30);
+            OpenGL.glVertex3d(0, -30, 30);
+            OpenGL.glEnd();
+            OpenGL.glPopMatrix();
+        }
         void DrawBigFloor()
         {
             OpenGL.glEnable(OpenGL.GL_LIGHTING);
             OpenGL.glBegin(OpenGL.GL_QUADS);
-            OpenGL.glColor4d(0, 0, 1, 0.3);
+            OpenGL.glColor4d(1, 1, 1, 1);
             OpenGL.glVertex3d(30, 0, 30);
             OpenGL.glVertex3d(30, 0, -30);
             OpenGL.glVertex3d(-30, 0, -30);
@@ -489,7 +576,7 @@ namespace Solar_system_Nudel.Classes
             GLU.gluPerspective(45.0f, (double)Width / Height, 0.1f, 100.0f);
             OpenGL.glMatrixMode(OpenGL.GL_MODELVIEW);
         }
-
+        
 
         public void Cleanup()
         {
@@ -499,5 +586,8 @@ namespace Solar_system_Nudel.Classes
                 OpenGL.wglDeleteContext(_renderingContext);
             }
         }
+        
+       
+
     }
 }

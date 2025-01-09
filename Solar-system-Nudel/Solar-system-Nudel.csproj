@@ -16,6 +16,8 @@
     <None Remove="Textures\Moon.jpg" />
     <None Remove="Textures\Space.jpg" />
     <None Remove="Textures\Sun.jpg" />
+    <None Remove="Textures\SunFlames.jpg" />
+    <None Remove="Textures\SunGlow.jpg" />
     <None Remove="Textures\Venus.jpg" />
   </ItemGroup>
 
@@ -26,6 +28,8 @@
     <EmbeddedResource Include="Textures\Moon.jpg" />
     <EmbeddedResource Include="Textures\Space.jpg" />
     <EmbeddedResource Include="Textures\Sun.jpg" />
+    <EmbeddedResource Include="Textures\SunFlames.jpg" />
+    <EmbeddedResource Include="Textures\SunGlow.jpg" />
     <EmbeddedResource Include="Textures\Venus.jpg" />
   </ItemGroup>
 

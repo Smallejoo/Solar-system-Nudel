@@ -27,6 +27,10 @@ namespace Solar_system_Nudel.Classes.OpenGLFolder
         public const uint PFD_SUPPORT_DIRECTDRAW = 0x00002000;
         public const string GL_DLL = "opengl32";
 
+        public const uint GL_FRAMEBUFFER = 0x8D40;
+        public const uint GL_DEPTH_ATTACHMENT = 0x8D00;
+        public const uint GL_CLAMP_TO_BORDER = 0x812F;
+
         /*Version*/
         public const uint GL_VERSION_1_1 = 1;
 
@@ -630,6 +634,12 @@ namespace Solar_system_Nudel.Classes.OpenGLFolder
         public const uint GL_CONSTANT_ATTENUATION = 0x1207;
         public const uint GL_LINEAR_ATTENUATION = 0x1208;
         public const uint GL_QUADRATIC_ATTENUATION = 0x1209;
+        public const uint GL_VERTEX_SHADER = 0x8B31;     // For vertex shader
+        public const uint GL_FRAGMENT_SHADER = 0x8B30;   // For fragment shader
+        public const uint GL_COMPILE_STATUS = 0x8B81;    // Shader compile status
+        public const uint GL_LINK_STATUS = 0x8B82;       // Program link status
+        public const uint GL_INFO_LOG_LENGTH = 0x8B84;   // Info log length
+
 
         /*Interleaved Arrays*/
         /*GL_V2F*/
@@ -1845,6 +1855,53 @@ namespace Solar_system_Nudel.Classes.OpenGLFolder
 
         [DllImport(GL_DLL, EntryPoint = "glTexParameteri")]
         public static extern void glTexParameteri(uint target, uint pname, uint param);
+
+        [DllImport("opengl32.dll", EntryPoint = "glCreateShader")]
+        public static extern uint glCreateShader(uint shaderType);
+
+        [DllImport("opengl32.dll", EntryPoint = "glShaderSource")]
+        public static extern void glShaderSource(uint shader, int count, string[] sources, int[] lengths);
+
+        [DllImport("opengl32.dll", EntryPoint = "glCompileShader")]
+        public static extern void glCompileShader(uint shader);
+
+        [DllImport("opengl32.dll", EntryPoint = "glGetShaderiv")]
+        public static extern void glGetShaderiv(uint shader, uint pname, int[] param);
+
+        [DllImport("opengl32.dll", EntryPoint = "glGetShaderInfoLog")]
+        public static extern void glGetShaderInfoLog(uint shader, int maxLength, IntPtr length, IntPtr infoLog);
+
+        [DllImport("opengl32.dll", EntryPoint = "glCreateProgram")]
+        public static extern uint glCreateProgram();
+
+        [DllImport("opengl32.dll", EntryPoint = "glAttachShader")]
+        public static extern void glAttachShader(uint program, uint shader);
+
+        [DllImport("opengl32.dll", EntryPoint = "glLinkProgram")]
+        public static extern void glLinkProgram(uint program);
+
+        [DllImport("opengl32.dll", EntryPoint = "glGetProgramiv")]
+        public static extern void glGetProgramiv(uint program, uint pname, int[] param);
+
+        [DllImport("opengl32.dll", EntryPoint = "glGetProgramInfoLog")]
+        public static extern void glGetProgramInfoLog(uint program, int maxLength, IntPtr length, IntPtr infoLog);
+
+        [DllImport("opengl32.dll", EntryPoint = "glDeleteShader")]
+        public static extern void glDeleteShader(uint shader);
+
+        [DllImport("opengl32.dll", EntryPoint = "glUseProgram")]
+        public static extern void glUseProgram(uint program);
+
+        [DllImport("opengl32.dll", EntryPoint = "glGetUniformLocation")]
+        public static extern int glGetUniformLocation(uint program, string name);
+
+        [DllImport("opengl32.dll", EntryPoint = "glUniform1i")]
+        public static extern void glUniform1i(int location, int value);
+
+        [DllImport("opengl32.dll", EntryPoint = "glUniformMatrix4fv")]
+        public static extern void glUniformMatrix4fv(int location, int count, bool transpose, float[] value);
+
+
 
 
     }

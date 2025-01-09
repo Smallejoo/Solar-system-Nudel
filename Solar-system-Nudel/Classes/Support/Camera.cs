@@ -19,7 +19,13 @@ namespace Solar_system_Nudel.Classes.Support
 
         public float Horizontal_Angle = 0.0f; // Yaw
         public float Vertical_Angle = 0.0f;   // Pitch
-
+        public float CenterDis()
+        {
+            double sqrThis = (Math.Pow(CameraPlacment_X, 2) + Math.Pow(CameraPlacment_Y, 2) + Math.Pow(CameraPlacment_Z, 2) );
+            sqrThis=Math.Sqrt(sqrThis);
+            
+            return (float)sqrThis;
+        }
         public Camera()
         {
             InitCamera();
@@ -104,9 +110,12 @@ namespace Solar_system_Nudel.Classes.Support
         {
             CameraPlacment_Y += 2;
         }
+        int press1 = 0;
         public void camReset()
         {
 
+            if(press1==1)
+            {
 
           CameraPlacment_X = 0.0f;
 
@@ -117,7 +126,7 @@ namespace Solar_system_Nudel.Classes.Support
         Vertical_Angle = 0.0f;   // Pitch
 
             CameraPlacment_Y = 20f;
-            CameraPlacment_Z = 30f;
+            CameraPlacment_Z = 100f;
 
             EyeSight_Y = 8.0f;
             EyeSight_Z = 1.0f;
@@ -126,8 +135,19 @@ namespace Solar_system_Nudel.Classes.Support
             CamRotate_X = 0.0f;
             CamRotate_Y = 1.0f; // Default up vector
             CamRotate_Z = 0.0f;
+                press1 =0;
+            }
+            else
+            {
+            CameraPlacment_Y = 395.93024f;
+            CameraPlacment_Z = -44.250523f;
+            EyeSight_Y= 394.93768f;
+                EyeSight_Z = -44.37239f;
+                Horizontal_Angle = 0; Vertical_Angle = -84;
 
+                press1 = 1;
 
+            }
         }
         public void camDown()
         {
@@ -150,11 +170,11 @@ namespace Solar_system_Nudel.Classes.Support
             float upZ = 0.0f;
 
             // Debugging
-            //Console.WriteLine("-------------------------------------------------------------");
-            //Console.WriteLine($"Camera Position:    X: {CameraPlacment_X}, Y: {CameraPlacment_Y}, Z: {CameraPlacment_Z}");
-            //Console.WriteLine($"Eye Direction:      X: {EyeSight_X}, Y: {EyeSight_Y}, Z: {EyeSight_Z}");
-            //Console.WriteLine($"Camera Rotation:    Yaw: {Horizontal_Angle}, Pitch: {Vertical_Angle}");
-            //Console.WriteLine("-------------------------------------------------------------");
+            Console.WriteLine("-------------------------------------------------------------");
+            Console.WriteLine($"Camera Position:    X: {CameraPlacment_X}, Y: {CameraPlacment_Y}, Z: {CameraPlacment_Z}");
+            Console.WriteLine($"Eye Direction:      X: {EyeSight_X}, Y: {EyeSight_Y}, Z: {EyeSight_Z}");
+            Console.WriteLine($"Camera Rotation:    Yaw: {Horizontal_Angle}, Pitch: {Vertical_Angle}");
+            Console.WriteLine("-------------------------------------------------------------");
 
             // Apply the camera transformation
             GLU.gluLookAt(
