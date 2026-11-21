@@ -44,3 +44,35 @@ Fully manual camera coded using algebra (vectors + rotation matrices):
 - **No engine, no OpenTK — raw OpenGL bindings**  
 
 ---
+
+## Build and run the complete simulation
+
+The complete planetary simulation lives on **LapTopBranch**. The historical `main` branch contains an earlier triangle-rendering prototype.
+
+Requires Windows, the .NET 8 SDK and an OpenGL-capable graphics driver.
+
+```powershell
+git clone --branch LapTopBranch https://github.com/Smallejoo/Solar-system-Nudel.git
+cd Solar-system-Nudel
+dotnet build Solar-system-Nudel/Solar-system-Nudel.csproj
+dotnet run --project Solar-system-Nudel/Solar-system-Nudel.csproj
+```
+
+Textures are embedded resources; no separate image download is required.
+
+## Controls
+
+| Keys | Action |
+| --- | --- |
+| W / S | Move forward / backward |
+| A / D | Move sideways |
+| Q / E | Rotate horizontally |
+| Z / C | Move camera up / down |
+| R / F | Look up / down |
+| Tab | Switch/reset camera viewpoints, including the overview |
+
+## Code map and scope
+
+`Form1` creates the WinForms window and dispatches keyboard input. `OpenGLRenderer` draws the scene. `Classes/Support` contains camera, planet and space objects; `Textures` loads embedded images. Rendering uses native OpenGL bindings; the project file also retains OpenTK and ImageSharp package dependencies.
+
+This is a visual programming project, not an accurate astronomical model. There is no automated rendering test suite. Verify planet animation, texture loading, camera movement and Tab viewpoints on a Windows machine with graphics support. Existing compiler warnings should be cleaned up separately.
